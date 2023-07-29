@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Presence X</string>
+    <string name="discord__login_error">Неизвестная ошибка</string>
+</resources>
