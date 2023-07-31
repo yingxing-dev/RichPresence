@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
     }
 
     private void startPresence() {
@@ -101,12 +100,13 @@ public class MainActivity extends AppCompatActivity {
                 info.state = "Android development";
                 info.button1 = new Presence.PresenceInfo.Button("Test 1", "https://twitch.tv/discord");
                 info.button2 = new Presence.PresenceInfo.Button("Test 2", "https://vk.com/artist/hoyo_mix");
+                info.status = Presence.UserStatus.DO_NOT_DISTURB;
                 instance.setPresence(info, true);
             }
 
             @Override
             public void onDisconnected() {
-
+                Log.e(PresenceService.TAG, "DISCONNECTED!");
             }
         });
     }
@@ -114,6 +114,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (instance != null) instance.disconnect();
+        if (instance != null) {
+            instance.disconnect();
+            instance = null;
+        }
     }
 }

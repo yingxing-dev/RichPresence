@@ -1,9 +1,6 @@
 package com.pride.x.rich.presence.service.instance.helpers;
 
-import static com.pride.x.rich.presence.service.PresenceService.TAG;
-
 import android.util.ArrayMap;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,6 +32,9 @@ public class PresenceSocket {
     private final PresenceSocketListener listener;
     private final RealWebSocket socket;
 
+    // Logger
+    private final PresenceLogger logger;
+
     // user values
     private final String token;
 
@@ -48,10 +48,15 @@ public class PresenceSocket {
 
     public PresenceSocket(
             @Nullable PresenceSocketListener listener,
-            @NonNull String token
+            @NonNull String token,
+            @NonNull PresenceLogger logger
     ) {
+        // set logger
+        this.logger = logger;
+
         // set token
         this.token = token;
+
         // set listener
         this.listener = listener;
 
@@ -70,7 +75,7 @@ public class PresenceSocket {
             @Override
             public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
                 super.onClosed(webSocket, code, reason);
-                Log.e(TAG, "Closed: [code=" + code + ", reason=" + reason + "]");
+                logger.e("Closed: [code=" + code + ", reason=" + reason + "]");
 
                 // stop heartbeat polling
                 stopPollHeartbeat();
@@ -80,13 +85,13 @@ public class PresenceSocket {
 
                 // if closed on gateway error
                 if (listener != null)
-                    listener.onClosed(code, code != 4000);
+                    listener.onClosed(code, code == 4000);
             }
 
             @Override
             public void onClosing(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
                 super.onClosing(webSocket, code, reason);
-                Log.e(TAG, "Closing: [code=" + code + ", reason=" + reason + "]");
+                logger.i("Closing: [code=" + code + ", reason=" + reason + "]");
             }
 
             @Override
@@ -100,13 +105,13 @@ public class PresenceSocket {
                 socketClosed = true;
 
                 if (listener != null) listener.onFailure(t.getMessage());
-                Log.e(TAG, "Failure: " + t.getMessage());
+                logger.e("Failure: " + t.getMessage());
             }
 
             @Override
             public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
                 super.onMessage(webSocket, text);
-                Log.e(TAG, "Message: " + text);
+                logger.i("Message: " + text);
 
                 // set closed flag
                 socketClosed = false;
@@ -211,7 +216,7 @@ public class PresenceSocket {
         arrayMap.put("op", 2);
         arrayMap.put("d", data);
 
-        Log.e(TAG, "Identification: " + GSON.toJson(arrayMap));
+        logger.e("Identification: " + GSON.toJson(arrayMap));
         socket.send(GSON.toJson(arrayMap));
     }
 

@@ -1,9 +1,6 @@
 package com.pride.x.rich.presence.service.instance.helpers;
 
-import static com.pride.x.rich.presence.service.PresenceService.TAG;
-
 import android.util.ArrayMap;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,7 +28,8 @@ public class PresenceImages {
     public static void process(
             final @Nullable Presence.PresenceInfo info,
             final @Nullable PresenceRequests requests,
-            @NonNull ImagesReadyListener listener
+            @NonNull ImagesReadyListener listener,
+            @NonNull PresenceLogger logger
     ) {
         if (info == null) {
             listener.onReady(null);
@@ -94,7 +92,7 @@ public class PresenceImages {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     listener.onReady(info);
-                    Log.e(TAG, "EXTERNAL URLS: " + e.getMessage());
+                    logger.e("Error collect external images: " + e.getMessage());
                 }
 
                 @Override
@@ -102,7 +100,7 @@ public class PresenceImages {
                     ResponseBody responseBody = response.body();
                     if (responseBody != null) {
                         String body = responseBody.string();
-                        Log.e(TAG, "EXTERNAL URLS: " + body);
+                        logger.i("EXTERNAL URLS: " + body);
                         try {
                             List<ExternalUrl> externalUrlList = requests.getGSON().fromJson(
                                     body,

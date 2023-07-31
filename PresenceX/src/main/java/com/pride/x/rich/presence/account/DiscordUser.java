@@ -32,7 +32,8 @@ public class DiscordUser implements Serializable {
     }
 
     public boolean isExpired() {
-        return System.currentTimeMillis() >= takenBy + MAX_EXPIRE;
+        return false;
+        // return System.currentTimeMillis() >= takenBy + MAX_EXPIRE;
     }
 
     public static void save(@NonNull Context context, @NonNull DiscordUser user) {

@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.pride.x.rich.presence.Presence;
 import com.pride.x.rich.presence.service.instance.PresenceInstance;
+import com.pride.x.rich.presence.service.instance.helpers.NetworkPing;
 
 @SuppressWarnings("unused")
 public class PresenceService extends Service implements PresenceInstance.PresenceInstanceListener {
@@ -94,11 +96,26 @@ public class PresenceService extends Service implements PresenceInstance.Presenc
 
     @Override
     public void onInstanceFinished(boolean error) {
-        String applicationId = instance.getApplicationId();
-        String token = instance.getToken();
         if (!error) instance = null;
-        else instance = new PresenceInstance(this, applicationId, token);
+        else {
+            final String applicationId = instance.getApplicationId();
+            final String token = instance.getToken();
+            NetworkPing.waitForConnection(() -> {
+                // create presence instance
+                instance = new PresenceInstance(
+                        PresenceService.this,
+                        applicationId,
+                        token
+                );
+            });
+        }
+        Log.e(TAG, "Presence instance crashed [error=" + error + "]");
+        // send disconnect signal
+        if (presenceBinder != null)
+            presenceBinder.disconnect();
     }
+
+
 
     public interface PresenceCallback {
         void onReady(@NonNull PresenceInstance instance, @NonNull Presence.User user);

@@ -26,10 +26,29 @@ public class PresenceBinder extends Binder {
         this.instance = instance;
         this.user = user;
 
+        // set connection state
+        connected = true;
+
         // callback data
         if (!callbacks.isEmpty()) {
             for (PresenceService.PresenceCallback callback : callbacks) {
                 if (callback != null) callback.onReady(instance, user);
+            }
+        }
+    }
+
+    public void disconnect() {
+        // clear data
+        this.instance = null;
+        this.user = null;
+
+        // set connection state
+        this.connected = false;
+
+        // callback data
+        if (!callbacks.isEmpty()) {
+            for (PresenceService.PresenceCallback callback : callbacks) {
+                if (callback != null) callback.onDisconnected();
             }
         }
     }

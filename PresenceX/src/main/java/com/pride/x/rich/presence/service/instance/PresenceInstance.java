@@ -1,15 +1,13 @@
 package com.pride.x.rich.presence.service.instance;
 
-import static com.pride.x.rich.presence.service.PresenceService.TAG;
-
 import android.util.ArrayMap;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.pride.x.rich.presence.Presence;
 import com.pride.x.rich.presence.service.instance.helpers.PresenceImages;
+import com.pride.x.rich.presence.service.instance.helpers.PresenceLogger;
 import com.pride.x.rich.presence.service.instance.helpers.PresenceRequests;
 import com.pride.x.rich.presence.service.instance.helpers.PresenceSocket;
 
@@ -28,6 +26,9 @@ public class PresenceInstance {
     // helpers instances
     private final PresenceRequests requests;
     private final PresenceSocket socket;
+
+    // logger
+    private final PresenceLogger presenceLogger = new PresenceLogger();
 
     // user activity values
     private Presence.PresenceInfo presenceInfo = null;
@@ -62,6 +63,8 @@ public class PresenceInstance {
             @Override
             public void onFailure(@Nullable String message) {
                 if (listener != null) listener.onInstanceFinished(true);
+                // mark instance is finished
+                instanceFinished = true;
             }
 
             @Override
@@ -75,9 +78,8 @@ public class PresenceInstance {
                 // mark instance is finished
                 instanceFinished = true;
             }
-        }, token);
+        }, token, getPresenceLogger());
     }
-
     public void clearPresence() {
         presenceInfo = null;
         update();
@@ -89,6 +91,10 @@ public class PresenceInstance {
 
     public String getApplicationId() {
         return applicationId;
+    }
+
+    public PresenceLogger getPresenceLogger() {
+        return presenceLogger;
     }
 
     public String getToken() {
@@ -106,11 +112,12 @@ public class PresenceInstance {
                 (presenceInfo) -> {
                     PresenceInstance.this.presenceInfo = presenceInfo;
                     update();
-                }
+                },
+                getPresenceLogger()
         );
     }
 
-    public void update() {
+    private void update() {
         ArrayMap<String, Object> presence = new ArrayMap<>();
 
         if (presenceInfo == null) presence.put("activities", new Object[]{});
@@ -181,7 +188,7 @@ public class PresenceInstance {
 
         String data = socket.getGSON().toJson(arr);
         socket.send(data);
-        Log.e(TAG, "PRESENCE UPDATE: " + data);
+        getPresenceLogger().i("PRESENCE UPDATE: " + data);
     }
 
     public void setStatus(@NonNull String status) {
@@ -211,14 +218,14 @@ public class PresenceInstance {
         requests.getRequestClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e(TAG, "Status change error: " + e.getMessage());
+                getPresenceLogger().e("Status change error: " + e.getMessage());
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                Log.e(
-                        TAG,
-                        "Status change response: " + (response.body() != null ? response.body().string() : null)
+                getPresenceLogger().i(
+                        "Status change response: " +
+                                (response.body() != null ? response.body().string() : null)
                 );
             }
         });
