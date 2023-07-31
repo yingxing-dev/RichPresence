@@ -3,16 +3,14 @@ package com.pride.x.rich.presence.service;
 import android.os.Binder;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.pride.x.rich.presence.Presence;
 import com.pride.x.rich.presence.service.instance.PresenceInstance;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PresenceBinder extends Binder {
 
-    private final List<PresenceService.PresenceCallback> callbacks = new ArrayList<>();
+    private PresenceService.PresenceCallback callback = null;
     private boolean connected = false;
 
     private PresenceInstance instance = null;
@@ -30,11 +28,7 @@ public class PresenceBinder extends Binder {
         connected = true;
 
         // callback data
-        if (!callbacks.isEmpty()) {
-            for (PresenceService.PresenceCallback callback : callbacks) {
-                if (callback != null) callback.onReady(instance, user);
-            }
-        }
+        if (callback != null) callback.onReady(instance, user);
     }
 
     public void disconnect() {
@@ -46,15 +40,12 @@ public class PresenceBinder extends Binder {
         this.connected = false;
 
         // callback data
-        if (!callbacks.isEmpty()) {
-            for (PresenceService.PresenceCallback callback : callbacks) {
-                if (callback != null) callback.onDisconnected();
-            }
-        }
+        if (callback != null) callback.onDisconnected();
     }
 
-    public void addCallback(PresenceService.PresenceCallback callback) {
+    public void setCallback(@Nullable PresenceService.PresenceCallback callback) {
+        if (callback == null) return;
         if (connected) callback.onReady(instance, user);
-        callbacks.add(callback);
+        this.callback = callback;
     }
 }

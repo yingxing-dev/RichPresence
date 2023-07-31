@@ -52,7 +52,7 @@ public class PresenceService extends Service implements PresenceInstance.Presenc
                     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                         if (iBinder instanceof PresenceBinder) {
                             PresenceBinder binder = (PresenceBinder) iBinder;
-                            binder.addCallback(callback);
+                            binder.setCallback(callback);
                         }
                         else callback.onDisconnected();
                     }
@@ -74,15 +74,16 @@ public class PresenceService extends Service implements PresenceInstance.Presenc
         String token = intent.getStringExtra("token");
         // check token and application id on non-null
         if (applicationId != null && token != null) {
-            if (instance == null || instance.isInstanceFinished()) {
-                if (instance != null)
-                    instance = null;
-                instance = new PresenceInstance(
-                        PresenceService.this,
-                        applicationId,
-                        token
-                );
+            if (instance != null) {
+                if (!instance.isInstanceFinished())
+                    instance.disconnect();
+                instance = null;
             }
+            instance = new PresenceInstance(
+                    PresenceService.this,
+                    applicationId,
+                    token
+            );
             return START_STICKY;
         }
         return START_NOT_STICKY;
@@ -90,7 +91,10 @@ public class PresenceService extends Service implements PresenceInstance.Presenc
 
     @Override
     public void onInstanceReady(@NonNull Presence.User user) {
-        if (presenceBinder != null) presenceBinder.setInstance(instance, user);
+        if (presenceBinder != null)
+        {
+            presenceBinder.setInstance(instance, user);
+        }
     }
 
     @Override

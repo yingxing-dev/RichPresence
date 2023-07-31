@@ -56,13 +56,18 @@ public class PresenceInstance {
         socket = new PresenceSocket(new PresenceSocket.PresenceSocketListener() {
             @Override
             public void onReady(@NonNull PresenceSocket socket, @NonNull Presence.User user) {
-                if (listener != null) listener.onInstanceReady(user);
+                // callback to service
+                if (listener != null)
+                    listener.onInstanceReady(user);
+                // send activity data if exist
                 if (presenceInfo != null) update();
             }
 
             @Override
             public void onFailure(@Nullable String message) {
-                if (listener != null) listener.onInstanceFinished(true);
+                // callback to service
+                if (listener != null)
+                    listener.onInstanceFinished(true);
                 // mark instance is finished
                 instanceFinished = true;
             }
@@ -74,12 +79,15 @@ public class PresenceInstance {
 
             @Override
             public void onClosed(int code, boolean close_internal) {
-                if (listener != null) listener.onInstanceFinished(!close_internal);
+                // callback to service
+                if (listener != null)
+                    listener.onInstanceFinished(!close_internal);
                 // mark instance is finished
                 instanceFinished = true;
             }
         }, token, getPresenceLogger());
     }
+
     public void clearPresence() {
         presenceInfo = null;
         update();
