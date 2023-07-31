@@ -5,6 +5,7 @@ import android.os.Binder;
 import androidx.annotation.NonNull;
 
 import com.pride.x.rich.presence.Presence;
+import com.pride.x.rich.presence.service.instance.PresenceInstance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,32 +15,27 @@ public class PresenceBinder extends Binder {
     private final List<PresenceService.PresenceCallback> callbacks = new ArrayList<>();
     private boolean connected = false;
 
-    private final Presence presence;
+    private PresenceInstance instance = null;
     private Presence.User user;
 
-    public PresenceBinder(@NonNull Presence presence) {
-        this.presence = presence;
-    }
-
-    public Presence getPresence() {
-        return presence;
-    }
-
-    public void setConnected(boolean connected, @NonNull Presence.User user) {
+    public void setInstance(
+            @NonNull PresenceInstance instance,
+            @NonNull Presence.User user
+    ) {
         // save instances
-        this.connected = connected;
+        this.instance = instance;
         this.user = user;
 
         // callback data
         if (!callbacks.isEmpty()) {
             for (PresenceService.PresenceCallback callback : callbacks) {
-                if (callback != null) callback.onSuccess(getPresence(), user);
+                if (callback != null) callback.onReady(instance, user);
             }
         }
     }
 
     public void addCallback(PresenceService.PresenceCallback callback) {
-        if (connected) callback.onSuccess(presence, user);
+        if (connected) callback.onReady(instance, user);
         callbacks.add(callback);
     }
 }

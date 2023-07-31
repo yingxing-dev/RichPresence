@@ -17,11 +17,12 @@ import com.pride.x.rich.presence.account.DiscordUser;
 import com.pride.x.rich.presence.auth.DiscordAuthorization;
 import com.pride.x.rich.presence.auth.cookies.DiscordCookies;
 import com.pride.x.rich.presence.service.PresenceService;
+import com.pride.x.rich.presence.service.instance.PresenceInstance;
 
 public class MainActivity extends AppCompatActivity {
 
     private DiscordAuthorization authorization = null;
-    private Presence presence;
+    private PresenceInstance instance;
 
     String[] pass = {
       "Said230804"
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(PresenceService.TAG, "" + otp.getTicket());
                 Log.e(PresenceService.TAG, "" + otp.isSmsAvailable());
                 Log.e(PresenceService.TAG, "" + otp.getPhone());
-                authorization.otp(otp, "021301");
+                authorization.otp(otp, "619407");
                 // l7jv-n7mq
             }
             if (status == DiscordAuthorization.LoginState.SUCCESS)
@@ -85,8 +86,8 @@ public class MainActivity extends AppCompatActivity {
     private void startPresence() {
         Presence.connect(this, "1107433617765974036", DiscordUser.read(this).getToken(), new PresenceService.PresenceCallback() {
             @Override
-            public void onSuccess(@NonNull Presence presence, @NonNull Presence.User user) {
-                MainActivity.this.presence = presence;
+            public void onReady(@NonNull PresenceInstance instance, @NonNull Presence.User user) {
+                MainActivity.this.instance = instance;
 
                 Presence.PresenceInfo info = new Presence.PresenceInfo();
                 info.startTimeStamp = System.currentTimeMillis();
@@ -100,8 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 info.state = "Android development";
                 info.button1 = new Presence.PresenceInfo.Button("Test 1", "https://twitch.tv/discord");
                 info.button2 = new Presence.PresenceInfo.Button("Test 2", "https://vk.com/artist/hoyo_mix");
-                presence.set(info, true);
-                presence.update();
+                instance.setPresence(info, true);
             }
 
             @Override
@@ -114,6 +114,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (presence != null) presence.clear();
+        if (instance != null) instance.disconnect();
     }
 }
