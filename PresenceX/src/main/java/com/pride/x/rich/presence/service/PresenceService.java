@@ -74,16 +74,15 @@ public class PresenceService extends Service implements PresenceInstance.Presenc
         String token = intent.getStringExtra("token");
         // check token and application id on non-null
         if (applicationId != null && token != null) {
-            if (instance != null) {
-                if (!instance.isInstanceFinished())
-                    instance.disconnect();
-                instance = null;
+            if (instance == null || instance.isInstanceFinished()) {
+                if (instance != null)
+                    instance = null;
+                instance = new PresenceInstance(
+                        PresenceService.this,
+                        applicationId,
+                        token
+                );
             }
-            instance = new PresenceInstance(
-                    PresenceService.this,
-                    applicationId,
-                    token
-            );
             return START_STICKY;
         }
         return START_NOT_STICKY;
