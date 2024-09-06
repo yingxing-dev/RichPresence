@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
                 hCaptcha
                         .addOnSuccessListener(response -> {
                             String userResponseToken = response.getTokenResult();
-                            authorization.login("alsumir623@gmail.com", "Said230804", userResponseToken);
+                            authorization.login("<username>", "<password>", userResponseToken);
                         })
                         .addOnFailureListener(e -> {
                             Log.d("hCaptcha", "hCaptcha failed: " + e.getMessage() + "(" + e.getStatusCode() + ")");
@@ -93,9 +93,9 @@ public class MainActivity extends AppCompatActivity {
                 info.presenceType = Presence.PresenceType.GAME;
                 info.name = getString(R.string.app_name);
                 info.largeImage = "https://sun7-23.userapi.com/impg/wD5ViVac3PJ8VHNP-rOrY-ewA4qxOWooes3hpw/6zx9iJ2jc_k.jpg?size=400x400&quality=95&sign=2e7f78a39ffec1b43efb0f79b8e83be7&type=audio";
-                info.largeText = "Мошонка страуса";
+                info.largeText = "Large text";
                 info.smallImage = "https://cdn.discordapp.com/app-icons/1107433617765974036/744847fc792bb54001acd3ff05cc9d43.png?size=512";
-                info.smallText = "Пизда бегемота";
+                info.smallText = "Small text";
                 info.details = "Dev build";
                 info.state = "Android development";
                 info.button1 = new Presence.PresenceInfo.Button("Test 1", "https://twitch.tv/discord");
